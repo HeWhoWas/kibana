@@ -31,13 +31,17 @@ module.exports = function (kibana) {
     init: function (server, options) {
       var config = server.config();
 
+      function openIndex(request, reply) {
+        return reply.continue();
+      }
+
       // Expose the client to the server
       exposeClient(server);
       createProxy(server, 'GET', '/{paths*}');
       createProxy(server, 'POST', '/_mget');
       createProxy(server, 'POST', '/{index}/_search');
       createProxy(server, 'POST', '/{index}/_field_stats');
-      createProxy(server, 'POST', '/_msearch');
+      createProxy(server, 'POST', '/_msearch',{pre: [openIndex]});
       createProxy(server, 'POST', '/_search/scroll');
 
       function noBulkCheck(request, reply) {
